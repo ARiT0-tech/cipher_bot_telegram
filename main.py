@@ -4,6 +4,7 @@ from lib import cip_keyboard, reply_keyboard, return_keyboard, start_keyboard
 from caesars import caesars_cipher
 from enigma import enigma_code
 from code import from_cipher, to_cipher
+from morse import morse
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 com_return = ReplyKeyboardMarkup(return_keyboard, one_time_keyboard=False)
@@ -38,6 +39,10 @@ def first_response(update, context):
         update.message.reply_text(
             "Что делать будем?", reply_markup=cip)
     elif text == 'Двоичный код':
+        context.user_data['cipher'] = text
+        update.message.reply_text(
+            "Что делать будем?", reply_markup=cip)
+    elif text == 'Morse':
         context.user_data['cipher'] = text
         update.message.reply_text(
             "Что делать будем?", reply_markup=cip)
@@ -102,8 +107,8 @@ def second_response(update, context):
 def enigma_response(update, context):
     text = update.message.text
     if text == 'return':
-        update.message.reply_text('OK', reply_markup=markup)
-        return 1
+        update.message.reply_text('OK', reply_markup=cip)
+        return 4
     else:
         try:
             enigma = enigma_code(text)
@@ -118,10 +123,12 @@ def enigma_response(update, context):
 def encrypt_response(update, context):
     text = update.message.text
     if text == 'return':
-        update.message.reply_text('OK', reply_markup=markup)
-        return 1
+        update.message.reply_text('OK', reply_markup=cip)
+        return 4
     if context.user_data['cipher'].lower() == 'Двоичный код'.lower():
         cipher_text = to_cipher(text)
+    elif context.user_data['cipher'].lower() == 'Morse'.lower():
+        cipher_text = m(text)
     elif context.user_data['cipher'].lower() == 'Шифр Цезаря'.lower():
         try:
             key, text = text.split('-')[0], text.split('-')[1]
@@ -143,8 +150,8 @@ def encrypt_response(update, context):
 def decrypt_response(update, context):
     text = update.message.text
     if text == 'return':
-        update.message.reply_text('OK', reply_markup=markup)
-        return 1
+        update.message.reply_text('OK', reply_markup=cip)
+        return 4
     if context.user_data['cipher'].lower() == 'Двоичный код'.lower():
         try:
             cipher_text = from_cipher(text)
