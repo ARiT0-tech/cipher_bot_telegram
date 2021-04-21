@@ -148,7 +148,7 @@ def encrypt_response(update, context):
             update.message.reply_text('Вы вели слишком много ключей\n'
                                       'или ошиблись в типе данных, ввели посторонние символы!')
     update.message.reply_text(
-        f"Вот что получилось: /{cipher_text}")
+        f"{cipher_text}")
     return 2
 
 
@@ -178,7 +178,7 @@ def decrypt_response(update, context):
             update.message.reply_text('Вы вели слишком много ключей\n'
                                       'или ошиблись в типе данных, ввели посторонние символы!')
     update.message.reply_text(
-        f"Вот что получилось: /{cipher_text}")
+        f"{cipher_text}")
     return 3
 
 
@@ -199,6 +199,7 @@ cipher = ConversationHandler(
         3: [MessageHandler(Filters.text, decrypt_response)],
         4: [MessageHandler(Filters.text, second_response)],
         5: [MessageHandler(Filters.text, enigma_response)],
+        6: [MessageHandler(Filters.text, print_response)],
     },
     fallbacks=[CommandHandler('stop', stop)])
 
