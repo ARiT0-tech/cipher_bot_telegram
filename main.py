@@ -4,7 +4,8 @@ from lib import cip_keyboard, reply_keyboard, return_keyboard, start_keyboard
 from caesars import caesars_cipher
 from enigma import enigma_code
 from code import from_cipher, to_cipher
-from morse import morse
+from morse import morse, demorse
+import os
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 com_return = ReplyKeyboardMarkup(return_keyboard, one_time_keyboard=False)
@@ -76,8 +77,9 @@ def second_response(update, context):
             answer = "Ввод: <ключ>-<текст>\n" \
                      "Ключ-Одно число от 1 до 26."
             update.message.reply_text(answer, reply_markup=com_return)
-        elif context.user_data['cipher'].lower() == 'Азбука Морзе'.lower():
-            answer = """Ввод: <текст>"""
+        elif context.user_data['cipher'].lower() == 'Morse'.lower():
+            answer = "Ввод: <текст>\n" \
+                     "Текст только на английском"
             update.message.reply_text(answer, reply_markup=com_return)
         return 2
     elif text.lower() == 'Расшифровать'.lower():
@@ -85,7 +87,7 @@ def second_response(update, context):
             update.message.reply_text(
                 "Для начала нужно ввести 3 ключи для роторов,\n"
                 "которые были использованный для шифровки,"
-                "затем через '-' ввести шифр на англиском,\n"
+                "затем через '-' ввести шифр только на англиском,\n"
                 "состояший только из букв и пробелов.\n"
                 "Пример: ABC-FPXKE HWZEQ.",
                 reply_markup=com_return)
@@ -97,7 +99,7 @@ def second_response(update, context):
             answer = "Ввод: <ключ>-<шифр>\n" \
                      "Ключ-Число, которое использовалось для шифровки."
             update.message.reply_text(answer, reply_markup=com_return)
-        elif context.user_data['cipher'].lower() == 'Азбука Морзе'.lower():
+        elif context.user_data['cipher'].lower() == 'Morse'.lower():
             answer = """Ввод: <шифр>"""
             update.message.reply_text(answer, reply_markup=com_return)
         return 3
@@ -128,7 +130,10 @@ def encrypt_response(update, context):
     if context.user_data['cipher'].lower() == 'Двоичный код'.lower():
         cipher_text = to_cipher(text)
     elif context.user_data['cipher'].lower() == 'Morse'.lower():
-        cipher_text = m(text)
+        try:
+            cipher_text = morse(text)
+        except Exception:
+            update.message.reply_text('Ошибка в типе введенных данных.')
     elif context.user_data['cipher'].lower() == 'Шифр Цезаря'.lower():
         try:
             key, text = text.split('-')[0], text.split('-')[1]
@@ -157,6 +162,11 @@ def decrypt_response(update, context):
             cipher_text = from_cipher(text)
         except Exception:
             update.message.reply_text('Вы точно ввели код')
+    elif context.user_data['cipher'].lower() == 'Morse'.lower():
+        try:
+            cipher_text = demorse(text)
+        except Exception:
+            update.message.reply_text('Ошибка в типе введенных данных.')
     elif context.user_data['cipher'].lower() == 'Шифр Цезаря'.lower():
         try:
             key, text = text.split('-')[0], text.split('-')[1]
@@ -192,15 +202,12 @@ cipher = ConversationHandler(
     },
     fallbacks=[CommandHandler('stop', stop)])
 
-
-def main():
-    updater = Updater('1751999231:AAEDSJALf8fgXIySv0wfDVYg6aE-LLJgYHg', use_context=True)
+if __name__ == '__main__':
+    updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
     dp.add_handler(cipher)
-    updater.start_polling()
+    port = int(os.environ.get("PORT", 5000))
+    updater.start_webhook(listen='0.0.0.0', port=port, url_path=TOKEN,
+                          webhook_url="https://app-telegcipher.herokuapp.com/" + TOKEN)
     updater.idle()
-
-
-if __name__ == '__main__':
-    main()
