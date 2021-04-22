@@ -7,6 +7,7 @@ from code import from_cipher, to_cipher
 from morse import morse, demorse
 from braille import debraille_code, braille_code
 from db_handler import create_history, print_history, check, db_create
+import os
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=False)
 com_return = ReplyKeyboardMarkup(return_keyboard, one_time_keyboard=False)
@@ -268,5 +269,7 @@ if __name__ == '__main__':
     dp = updater.dispatcher
 
     dp.add_handler(cipher)
-    updater.start_polling()
+    port = int(os.environ.get("PORT", 5000))
+    updater.start_webhook(listen='0.0.0.0', port=port, url_path=TOKEN,
+                          webhook_url="https://app-telebot228.herokuapp.com/" + TOKEN)
     updater.idle()
