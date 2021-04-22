@@ -199,7 +199,6 @@ cipher = ConversationHandler(
         3: [MessageHandler(Filters.text, decrypt_response)],
         4: [MessageHandler(Filters.text, second_response)],
         5: [MessageHandler(Filters.text, enigma_response)],
-        6: [MessageHandler(Filters.text, print_response)],
     },
     fallbacks=[CommandHandler('stop', stop)])
 
