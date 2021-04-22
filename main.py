@@ -271,5 +271,5 @@ if __name__ == '__main__':
     dp.add_handler(cipher)
     port = int(os.environ.get("PORT", 5000))
     updater.start_webhook(listen='0.0.0.0', port=port, url_path=TOKEN,
-                          webhook_url="https://app-telegcipher.herokuapp.com/" + TOKEN)
+                          webhook_url="https://app-telebot228.herokuapp.com/" + TOKEN)
     updater.idle()
